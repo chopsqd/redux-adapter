@@ -14,6 +14,14 @@ export const deleteComment = createAsyncThunk(
     }
 )
 
+export const patchComment = createAsyncThunk(
+    'comments/patchComment',
+    async ({id, newObj}) => {
+        await fetch(`https://jsonplaceholder.typicode.com/comments/${id}`, {method: 'PATCH', body: JSON.stringify(newObj)})
+        return {id, changes: newObj}
+    }
+)
+
 const commentsAdapter = createEntityAdapter({
     selectId: (comment) => comment.id
 })
@@ -42,6 +50,17 @@ const commentsSlice = createSlice({
             commentsAdapter.removeOne(state, id)
         },
         [deleteComment.rejected](state) {
+            state.loading = false
+        },
+
+        [patchComment.pending](state) {
+            state.loading = true
+        },
+        [patchComment.fulfilled](state, {payload: {id, changes}}) {
+            state.loading = false
+            commentsAdapter.updateOne(state, {id, changes})
+        },
+        [patchComment.rejected](state) {
             state.loading = false
         }
     }

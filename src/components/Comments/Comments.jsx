@@ -1,5 +1,5 @@
-import React, {useEffect, useCallback} from 'react';
-import {fetchComments, commentsSelectors, deleteComment} from './commentsSlice'
+import React, {useEffect, useCallback, memo} from 'react';
+import {fetchComments, commentsSelectors, deleteComment, patchComment} from './commentsSlice'
 import {useDispatch, useSelector} from 'react-redux'
 import OneComment from "../OneComment/OneComment";
 
@@ -11,11 +11,15 @@ const Comments = () => {
         dispatch(deleteComment(id))
     }, [])
 
+    const onPatch = useCallback((id, newObj) => {
+        dispatch(patchComment({id, newObj}))
+    }, [])
+
     useEffect(() => {
         dispatch(fetchComments())
     },[])
 
-    return allComments.map(comment => <OneComment key={comment.id} comment={comment} onDelete={onDelete}/>)
+    return allComments.map(comment => <OneComment key={comment.id} comment={comment} onDelete={onDelete} onPatch={onPatch}/>)
 };
 
-export default Comments;
+export default memo(Comments);
