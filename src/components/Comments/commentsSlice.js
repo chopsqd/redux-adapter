@@ -26,10 +26,21 @@ const commentsAdapter = createEntityAdapter({
     selectId: (comment) => comment.id
 })
 
+const postsAdapter = createEntityAdapter({
+    selectId: (post) => post.id
+})
+
 const commentsSlice = createSlice({
     name: 'comments',
-    initialState: commentsAdapter.getInitialState({ loading: false }),
-    redicers: {},
+    initialState: commentsAdapter.getInitialState({
+        loading: false,
+        posts: postsAdapter.getInitialState()
+    }),
+    reducers: {
+        addComment(state, action) {
+            commentsAdapter.addOne(state, {id: Date.now(), body: action.payload})
+        }
+    },
     extraReducers: {
         [fetchComments.pending](state) {
             state.loading = true
@@ -66,6 +77,9 @@ const commentsSlice = createSlice({
     }
 })
 
+export const {addComment} = commentsSlice.actions
+
 export const commentsSelectors = commentsAdapter.getSelectors(state => state.comments)
+export const loadingSelector = state => state.comments.loading
 
 export default commentsSlice.reducer
